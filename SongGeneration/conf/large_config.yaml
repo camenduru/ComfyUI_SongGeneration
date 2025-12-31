@@ -78,7 +78,7 @@ attribute_dropout:
     active_on_eval: false
   text:
     description: 0.0
-    type_info: 0.5
+    type_info: 0.3
   audio:
     prompt_audio: 0.5
 
