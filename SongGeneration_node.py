@@ -9,6 +9,8 @@ from .node_utils import gc_clear
 from .generate import auto_prompt_type,infer_stage2,inference_lowram_final,build_model,Separator,song_infer_lowram
 import time
 import folder_paths
+import tempfile
+import shutil
 
 MAX_SEED = np.iinfo(np.int32).max
 current_node_path = os.path.dirname(os.path.abspath(__file__))
@@ -88,10 +90,17 @@ class SongGeneration_Stage1:
             print("Using audio as reference.")
             prompt_audio_path = os.path.join(folder_paths.get_input_directory(), f"audio_{time.strftime('%m%d%H%S')}_temp.wav")
             waveform=audio["waveform"].squeeze(0)
-            buff = io.BytesIO()
-            torchaudio.save(buff, waveform, audio["sample_rate"], format="FLAC")
-            with open(prompt_audio_path, 'wb') as f:
-                f.write(buff.getbuffer())
+            # buff = io.BytesIO()
+            # torchaudio.save(buff, waveform, audio["sample_rate"], format="FLAC")
+            # with open(prompt_audio_path, 'wb') as f:
+            #     f.write(buff.getbuffer())
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_file:
+                torchaudio.save(tmp_file.name, waveform, audio["sample_rate"])  # No need for format= here
+                tmp_file_path = tmp_file.name
+            # Copy the temp file to the desired prompt_audio_path
+            shutil.copy(tmp_file_path, prompt_audio_path)
+            # Clean up the temporary file
+            os.unlink(tmp_file_path)
             use_descriptions=False #不建议同时提供参考音频和描述文本
 
             dm_model_path=folder_paths.get_full_path("SongGeneration", demucs_pt) if demucs_pt != "none" else None
