@@ -195,7 +195,8 @@ class QwTextConditioner(TextConditioner):
                  max_len = 300): #""
         
         from transformers import Qwen2Tokenizer
-        self.text_tokenizer = Qwen2Tokenizer.from_pretrained(token_path)    
+        self.text_tokenizer = Qwen2Tokenizer.from_pretrained(token_path)
+        self.text_tokenizer.add_tokens(['[Musicality-very-high]', '[Musicality-high]', '[Musicality-medium]', '[Musicality-low]', '[Musicality-very-low]'], special_tokens=True)
         voc_size = len(self.text_tokenizer.get_vocab())         
         # here initialize a output_proj (nn.Embedding) layer
         super().__init__(voc_size, output_dim, input_token=True, padding_idx=151643) 
